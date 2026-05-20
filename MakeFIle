@@ -1,0 +1,8 @@
+build:
+	g++ src/main.cpp -o chess -I "C:\SFML\include" -L "C:\SFML\lib" -lsfml-graphics -lsfml-window -lsfml-system -lopengl32 -lwinmm -lgdi32 -mconsole -std=c++17
+
+run:
+	.\chess.exe
+
+clean:
+	del chess.exe
