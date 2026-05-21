@@ -20,32 +20,32 @@ string board[8][8] = {
 };
 
 //moves for different pieces
-void addRookMoves(vector<pair<int,int>>& moves, int row, int col, char myColor){
-    for(int r = row-1; r >= 0; r--){
+void RookMoves(vector<pair<int,int>>& moves, int row, int col, char myColor){
+    for(int r = row-1; r >= 0; r--){//up for white, down for black
+        if(board[r][col] == ""){
+            moves.push_back({r, col});// can move and even conitnue moving if piece is our color 
+        }
+        else if(board[r][col][0] != myColor){
+            moves.push_back({r, col});
+            break;// last sqaure to move if the piece is not of our color
+        }
+        else{
+            break;//stop if piece is our color
+        }
+    }
+    for(int r = row+1; r < 8; r++){//up for black, down for white 
         if(board[r][col] == ""){
             moves.push_back({r, col});
         }
         else if(board[r][col][0] != myColor){
             moves.push_back({r, col});
-            break;
+            break; 
         }
         else{
             break;
         }
     }
-    for(int r = row+1; r < 8; r++){
-        if(board[r][col] == ""){
-            moves.push_back({r, col});
-        }
-        else if(board[r][col][0] != myColor){
-            moves.push_back({r, col});
-            break;
-        }
-        else{
-            break;
-        }
-    }
-    for(int c = col-1; c >= 0; c--){
+    for(int c = col-1; c >= 0; c--){//left
         if(board[row][c] == ""){
             moves.push_back({row, c});
         }
@@ -57,7 +57,7 @@ void addRookMoves(vector<pair<int,int>>& moves, int row, int col, char myColor){
             break;
         }
     }
-    for(int c = col+1; c < 8; c++){
+    for(int c = col+1; c < 8; c++){//right 
         if(board[row][c] == ""){
             moves.push_back({row, c});
         }
@@ -71,20 +71,20 @@ void addRookMoves(vector<pair<int,int>>& moves, int row, int col, char myColor){
     }
 }
 
-void addBishopMoves(vector<pair<int,int>>& moves, int row, int col, char myColor){
-    for(int i = 1; row-i >= 0 && col-i >= 0; i++){
+void BishopMoves(vector<pair<int,int>>& moves, int row, int col, char myColor){
+    for(int i = 1; row-i >= 0 && col-i >= 0; i++){// north west 
         if(board[row-i][col-i] == ""){
-            moves.push_back({row-i, col-i});
+            moves.push_back({row-i, col-i});//can move and even conitnue moving if piece is our color 
         }
         else if(board[row-i][col-i][0] != myColor){
             moves.push_back({row-i, col-i});
-            break;
+            break;//last sqaure to move if the piece is not of our color
         }
         else{
-            break;
+            break;//stop if piece is our color
         }
     }
-    for(int i = 1; row-i >= 0 && col+i < 8; i++){
+    for(int i = 1; row-i >= 0 && col+i < 8; i++){// north east 
         if(board[row-i][col+i] == ""){
             moves.push_back({row-i, col+i});
         }
@@ -96,7 +96,7 @@ void addBishopMoves(vector<pair<int,int>>& moves, int row, int col, char myColor
             break;
         }
     }
-    for(int i = 1; row+i < 8 && col-i >= 0; i++){
+    for(int i = 1; row+i < 8 && col-i >= 0; i++){ //south west 
         if(board[row+i][col-i] == ""){
             moves.push_back({row+i, col-i});
         }
@@ -108,7 +108,7 @@ void addBishopMoves(vector<pair<int,int>>& moves, int row, int col, char myColor
             break;
         }
     }
-    for(int i = 1; row+i < 8 && col+i < 8; i++){
+    for(int i = 1; row+i < 8 && col+i < 8; i++){ // south east 
         if(board[row+i][col+i] == ""){
             moves.push_back({row+i, col+i});
         }
@@ -122,7 +122,7 @@ void addBishopMoves(vector<pair<int,int>>& moves, int row, int col, char myColor
     }
 }
 
-void addKnightMoves(vector<pair<int,int>>& moves, int row, int col, char myColor){
+void KnightMoves(vector<pair<int,int>>& moves, int row, int col, char myColor){
     int jumps[8][2] = {{-2,-1},{-2,1},{-1,-2},{-1,2},{1,-2},{1,2},{2,-1},{2,1}};
     for(auto& j : jumps){
         int r = row + j[0], c = col + j[1];
@@ -134,7 +134,7 @@ void addKnightMoves(vector<pair<int,int>>& moves, int row, int col, char myColor
     }
 }
 
-void addKingMoves(vector<pair<int,int>>& moves, int row, int col, char myColor){
+void KingMoves(vector<pair<int,int>>& moves, int row, int col, char myColor){
     for(int dr = -1; dr <= 1; dr++){
         for(int dc = -1; dc <= 1; dc++){
             if(dr == 0 && dc == 0){
@@ -184,26 +184,26 @@ vector<pair<int,int>> getValidMoves(int row, int col){
         }
     }
     else if(piece == "wR" || piece == "bR"){
-        addRookMoves(moves, row, col, myColor);
+        RookMoves(moves, row, col, myColor);
     }
     else if(piece == "wB" || piece == "bB"){
-        addBishopMoves(moves, row, col, myColor);
+        BishopMoves(moves, row, col, myColor);
     }
     else if(piece == "wN" || piece == "bN"){
-        addKnightMoves(moves, row, col, myColor);
+        KnightMoves(moves, row, col, myColor);
     }
     else if(piece == "wQ" || piece == "bQ"){
-        addRookMoves(moves, row, col, myColor);
-        addBishopMoves(moves, row, col, myColor);
+        RookMoves(moves, row, col, myColor);
+        BishopMoves(moves, row, col, myColor);
     }
     else if(piece == "wK" || piece == "bK"){
-        addKingMoves(moves, row, col, myColor);
+        KingMoves(moves, row, col, myColor);
     }
     return moves;
 }
 
 int main(){
-    RenderWindow window(VideoMode({800, 800}), "Chess Engine");
+    RenderWindow window(VideoMode({800, 800}), "Chess Engine");//window created 
     map<string, Texture> textures;
     //declaring array pieces 
     string pieces[] = {"wK","wQ","wR","wB","wN","wP",
@@ -218,21 +218,45 @@ int main(){
     int selectedRow = -1, selectedCol = -1;
     vector<pair<int,int>> validMoves;
     char currentTurn = 'w';
+
+    // promotion variables
+    bool promoting = false;
+    int promotionRow = -1, promotionCol = -1;
+    char promotionColor = ' ';
+
+    //load cursor types 
+    auto defaultCursor = Cursor::createFromSystem(Cursor::Type::Arrow);
+    auto grabCursor = Cursor::createFromSystem(Cursor::Type::Hand);
+
     while(window.isOpen()){
         while(const optional event = window.pollEvent()){
             if(event->is<Event::Closed>()){
                 window.close();
             }
-             else if(event->is<Event::MouseButtonPressed>()){
+            else if(event->is<Event::MouseButtonPressed>()){
                 auto mouse = Mouse::getPosition(window);
                 int col = mouse.x / TILE_SIZE;
                 int row = mouse.y / TILE_SIZE;
-                if(!selected){
-                    if(board[row][col] != "" && board[row][col][0] == currentTurn){ // add this check
+
+                // handle promotion menu click first
+                if(promoting){
+                    string options[] = {"Q","R","B","N"};
+                    for(int i = 0; i < 4; i++){
+                        if(col == promotionCol && row == i){
+                            board[promotionRow][promotionCol] = string(1, promotionColor) + options[i];
+                            promoting = false;
+                        }
+                    }
+                    selected = false;
+                    validMoves.clear();
+                }
+                else if(!selected){
+                    if(board[row][col] != "" && board[row][col][0] == currentTurn){
                         selected = true;
                         selectedRow = row;
                         selectedCol = col;
                         validMoves = getValidMoves(row, col);
+                        window.setMouseCursor(*grabCursor);// changes the cursor to hand cursor 
                     }
                 }
                 else{
@@ -248,11 +272,26 @@ int main(){
                     if(isValid){
                         board[row][col] = board[selectedRow][selectedCol];
                         board[selectedRow][selectedCol] = "";
-                        currentTurn = (currentTurn == 'w') ? 'b' : 'w'; // switch turn
+                        currentTurn = (currentTurn == 'w') ? 'b' : 'w';
+
+                        // check for pawn promotion
+                        if(board[row][col] == "wP" && row == 0){
+                            promoting = true;
+                            promotionRow = row;
+                            promotionCol = col;
+                            promotionColor = 'w';
+                        }
+                        else if(board[row][col] == "bP" && row == 7){
+                            promoting = true;
+                            promotionRow = row;
+                            promotionCol = col;
+                            promotionColor = 'b';
+                        }
                     }
 
                     selected = false;
                     validMoves.clear();
+                    window.setMouseCursor(*defaultCursor); // changing cursor back to arrow
                 }
             }
         }
@@ -262,10 +301,10 @@ int main(){
                 RectangleShape tile(Vector2f(TILE_SIZE, TILE_SIZE));
                 tile.setPosition(Vector2f(col * TILE_SIZE, row * TILE_SIZE));
                 if((row + col) % 2 == 0){
-                    tile.setFillColor(Color(240, 217, 181));
+                    tile.setFillColor(Color(237, 230, 247));
                 }
                 else{
-                    tile.setFillColor(Color(181, 136, 99));
+                    tile.setFillColor(Color(130, 100, 180));
                 }
                 window.draw(tile);
                 if(selected && row == selectedRow && col == selectedCol){
@@ -295,6 +334,30 @@ int main(){
                 }
             }
         }
+
+        // draw promotion popup
+        if(promoting){
+            string options[] = {"Q","R","B","N"};
+            for(int i = 0; i < 4; i++){
+                RectangleShape bg(Vector2f(TILE_SIZE, TILE_SIZE));
+                bg.setPosition(Vector2f(promotionCol * TILE_SIZE,i* TILE_SIZE));
+                bg.setFillColor(Color(50, 50, 50, 220));
+                window.draw(bg);
+
+                string pieceName = string(1, promotionColor) + options[i];
+                if(textures.count(pieceName)){
+                    Sprite sprite(textures[pieceName]);
+                    auto size = textures[pieceName].getSize();
+                    sprite.setScale(Vector2f(
+                        (float)TILE_SIZE / size.x,
+                        (float)TILE_SIZE / size.y
+                    ));
+                    sprite.setPosition(Vector2f(promotionCol * TILE_SIZE, i * TILE_SIZE));
+                    window.draw(sprite);
+                }
+            }
+        }
+
         window.display();
     }
     return 0;
