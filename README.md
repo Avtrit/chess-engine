@@ -2,6 +2,34 @@
 
 A chess game built in C++ using SFML. Play a two player game of chess with move highlighting and turn enforcement.
 
+
+## TASKS FOR THE PROJECT 22/05/26
+
+- limit the use of ai only to sfml
+- implement the board with pieces
+- write the moves for the pieces 
+- change the cursor when moving a piece
+- highlight the squares when moving the pieces
+- highlight the squares red if a capture is possibe
+- implement EN-Passent, castling (took a lot of time😭)
+- 
+
+## TIMELINE OF THE PROJECT(for personal record, plz feel free to skip it)
+### 19/05/26
+- made the basic board structure via a string and sfml
+- copied the pieces images from lichess
+### 20/05/26
+- implemented the moves of each piece
+- black and white seperately did not have to implement capture got covered in valid moves itself
+- created current turn boolean
+### 21/05/26
+- wrote comments till the above part
+- implemented pawn promotion
+- implemented pawn promotion with a drop down
+### 22/05/26
+- 
+
+
 ## Features
 
 - Full chess board with all pieces
