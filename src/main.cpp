@@ -108,7 +108,7 @@ void BishopMoves(vector<pair<int,int>>& moves, int row, int col, char myColor){
             break;
         }
     }
-    for(int i = 1; row+i < 8 && col+i < 8; i++){ // south east 
+    for(int i = 1; row+i < 8 && col+i < 8; i++){ //south east 
         if(board[row+i][col+i] == ""){
             moves.push_back({row+i, col+i});
         }
@@ -149,6 +149,8 @@ void KingMoves(vector<pair<int,int>>& moves, int row, int col, char myColor){
         }
     }
 }
+
+bool pawn_double = false;
 
 vector<pair<int,int>> getValidMoves(int row, int col){
     vector<pair<int,int>> moves;
@@ -192,7 +194,7 @@ vector<pair<int,int>> getValidMoves(int row, int col){
     else if(piece == "wN" || piece == "bN"){
         KnightMoves(moves, row, col, myColor);
     }
-    else if(piece == "wQ" || piece == "bQ"){
+    else if(piece == "wQ" || piece == "bQ"){// rook and bishop moves 
         RookMoves(moves, row, col, myColor);
         BishopMoves(moves, row, col, myColor);
     }
@@ -200,6 +202,71 @@ vector<pair<int,int>> getValidMoves(int row, int col){
         KingMoves(moves, row, col, myColor);
     }
     return moves;
+}
+
+bool isSquareAttacked(int row,int col, char attackerColor){
+    vector<pair<int,int>> moves;
+    for(int i = 0 ; i<8; i++){
+        for(int j = 0 ; j<8 ; j++){
+            if(board[i][j][0] == attackerColor){
+                string piece = board[i][j];
+                //if attacking piece is a pawn
+                if(board[i][j]=="wP"){
+                    if((i == (row + 1)) && ((j == (col - 1))||(j == (col + 1)))){
+                        return true;
+                    }
+                }
+                if(board[i][j]=="bP"){
+                    if((i == (row - 1)) && ((j == (col - 1) )||(j == (col + 1)))){
+                        return true;
+                    }
+                }
+                //othercases
+                if(piece == "wR" || piece == "bR"){
+                    RookMoves(moves, i, j, attackerColor);
+                }
+                else if(piece == "wB" || piece == "bB"){
+                    BishopMoves(moves, i, j, attackerColor);
+                }
+                else if(piece == "wN" || piece == "bN"){
+                    KnightMoves(moves, i, j, attackerColor);
+                }
+                else if(piece == "wQ" || piece == "bQ"){
+                    RookMoves(moves, i, j, attackerColor);
+                    BishopMoves(moves, i, j, attackerColor);
+                }
+                else if(piece == "wK" || piece == "bK"){
+                    KingMoves(moves, i, j, attackerColor);
+                }
+            }
+        }
+    }
+    for(auto&p : moves){
+        if((row == p.first) && (col== p.second)){
+            return true;
+        }
+    }
+    return false;
+}
+
+pair<int,int> findKing(char color){
+    for(int i= 0 ; i<8 ; i++){
+        for(int j = 0 ; j< 8;j++){
+            if(board[i][j][0]==color && board[i][j][1]=='K'){
+                return {i,j};
+            }
+        }
+    }
+    return{-1,-1};
+}
+
+bool isKinginCheck(char color){
+    pair<int,int> k;
+    k = findKing(color);
+
+    char enemy = (color == 'w') ? 'b' : 'w';
+
+    return isSquareAttacked(k.first, k.second, enemy);
 }
 
 int main(){
@@ -219,12 +286,17 @@ int main(){
     vector<pair<int,int>> validMoves;
     char currentTurn = 'w';
 
+    Font font;
+    if(!font.openFromFile("C:\\Chess Engine\\src\\arial.ttf")){
+    //could not load
+    };
+
     // promotion variables
     bool promoting = false;
     int promotionRow = -1, promotionCol = -1;
     char promotionColor = ' ';
 
-    //load cursor types 
+    //loading cursor types 
     auto defaultCursor = Cursor::createFromSystem(Cursor::Type::Arrow);
     auto grabCursor = Cursor::createFromSystem(Cursor::Type::Hand);
 
@@ -238,7 +310,6 @@ int main(){
                 int col = mouse.x / TILE_SIZE;
                 int row = mouse.y / TILE_SIZE;
 
-                // handle promotion menu click first
                 if(promoting){
                     string options[] = {"Q","R","B","N"};
                     for(int i = 0; i < 4; i++){
@@ -270,22 +341,32 @@ int main(){
                     }
 
                     if(isValid){
-                        board[row][col] = board[selectedRow][selectedCol];
-                        board[selectedRow][selectedCol] = "";
-                        currentTurn = (currentTurn == 'w') ? 'b' : 'w';
+                        string movedPiece = board[selectedRow][selectedCol];
+                        string capturedPiece = board[row][col];
 
-                        // check for pawn promotion
-                        if(board[row][col] == "wP" && row == 0){
-                            promoting = true;
-                            promotionRow = row;
-                            promotionCol = col;
-                            promotionColor = 'w';
+                        board[row][col] = movedPiece;
+                        board[selectedRow][selectedCol] = "";
+
+                        if(isKinginCheck(currentTurn)){
+                            // undo the move
+                            board[selectedRow][selectedCol] = movedPiece;
+                            board[row][col] = capturedPiece;
                         }
-                        else if(board[row][col] == "bP" && row == 7){
-                            promoting = true;
-                            promotionRow = row;
-                            promotionCol = col;
-                            promotionColor = 'b';
+                        else{
+                            currentTurn = (currentTurn == 'w') ? 'b' : 'w';
+                            // check for pawn promotion
+                            if(board[row][col] == "wP" && row == 0){
+                                promoting = true;
+                                promotionRow = row;
+                                promotionCol = col;
+                                promotionColor = 'w';
+                            }
+                            else if(board[row][col] == "bP" && row == 7){
+                                promoting = true;
+                                promotionRow = row;
+                                promotionCol = col;
+                                promotionColor = 'b';
+                            }
                         }
                     }
 
@@ -335,6 +416,25 @@ int main(){
             }
         }
 
+        if(isKinginCheck(currentTurn)){
+            RectangleShape overlay(Vector2f(800, 50));
+            overlay.setPosition(Vector2f(0, 375));
+            overlay.setFillColor(Color(0, 0, 0, 200));
+            window.draw(overlay);
+
+            Text checkText(font);
+            checkText.setString(currentTurn == 'w' ? "White is in Check!" : "Black is in Check!");
+            checkText.setCharacterSize(36);
+            checkText.setFillColor(Color::Red);
+            checkText.setStyle(Text::Bold);
+
+            auto bounds = checkText.getLocalBounds();
+            checkText.setOrigin(bounds.size / 2.f);
+            checkText.setPosition(Vector2f(400, 400));
+
+            window.draw(checkText);
+        }
+
         // draw promotion popup
         if(promoting){
             string options[] = {"Q","R","B","N"};
@@ -357,7 +457,6 @@ int main(){
                 }
             }
         }
-
         window.display();
     }
     return 0;
