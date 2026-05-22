@@ -11,8 +11,8 @@ A chess game built in C++ using SFML. Play a two player game of chess with move 
 - change the cursor when moving a piece
 - highlight the squares when moving the pieces
 - highlight the squares red if a capture is possibe
-- implement EN-Passent, castling (took a lot of time😭)
-- 
+- implement check
+- implement chekmate and stalemate 
 
 ## TIMELINE OF THE PROJECT(for personal record, plz feel free to skip it)
 ### 19/05/26
@@ -27,7 +27,8 @@ A chess game built in C++ using SFML. Play a two player game of chess with move 
 - implemented pawn promotion
 - implemented pawn promotion with a drop down
 ### 22/05/26
-- 
+- implemented check(with a popup)
+- implemented checkmate and stalemate
 
 
 ## Features
