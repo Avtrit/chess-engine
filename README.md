@@ -28,8 +28,8 @@ A chess game built in C++ using SFML. Play a two player game of chess with move 
 - implemented pawn promotion with a drop down
 ### 22/05/26
 - implemented check(with a popup)
-- implemented checkmate and stalemate
-
+### 23/05/26
+- implemented checkmate and stalemate 
 
 ## Features
 
