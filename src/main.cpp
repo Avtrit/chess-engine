@@ -460,10 +460,22 @@ int main(){
                     window.draw(highlight);
                 }
                 for(auto& [r, c] : validMoves){
+                    RectangleShape highlight(Vector2f(TILE_SIZE, TILE_SIZE));
+                    highlight.setPosition(
+                        Vector2f(col * TILE_SIZE,
+                                row * TILE_SIZE)
+                    );
+                    if(board[r][c] != ""){
+                        highlight.setFillColor(
+                            Color(255, 0, 0, 120)
+                        );
+                    }
+                    else{
+                        highlight.setFillColor(
+                            Color(0, 255, 0, 100)
+                        );
+                    }
                     if(row == r && col == c){
-                        RectangleShape highlight(Vector2f(TILE_SIZE, TILE_SIZE));
-                        highlight.setPosition(Vector2f(col * TILE_SIZE, row * TILE_SIZE));
-                        highlight.setFillColor(Color(0, 255, 0, 100));
                         window.draw(highlight);
                     }
                 }
