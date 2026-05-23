@@ -206,46 +206,54 @@ vector<pair<int,int>> getValidMoves(int row, int col){
 
 bool isSquareAttacked(int row,int col, char attackerColor){
     vector<pair<int,int>> moves;
-    for(int i = 0 ; i<8; i++){
-        for(int j = 0 ; j<8 ; j++){
-            if(board[i][j][0] == attackerColor){
+    for(int i = 0 ; i < 8 ; i++){
+        for(int j = 0 ; j < 8 ; j++){
+            if(board[i][j] != "" &&
+               board[i][j][0] == attackerColor){
+
                 string piece = board[i][j];
-                //if attacking piece is a pawn
-                if(board[i][j]=="wP"){
-                    if((i == (row + 1)) && ((j == (col - 1))||(j == (col + 1)))){
+                if(piece == "wP"){
+                    if((i == row + 1) && (j == col - 1 || j == col + 1)){
                         return true;
                     }
                 }
-                if(board[i][j]=="bP"){
-                    if((i == (row - 1)) && ((j == (col - 1) )||(j == (col + 1)))){
+                else if(piece == "bP"){
+                    if((i == row - 1) && (j == col - 1 || j == col + 1)){
                         return true;
                     }
                 }
-                //othercases
-                if(piece == "wR" || piece == "bR"){
+                else if(piece == "wR" || piece == "bR"){
+                    moves.clear();
                     RookMoves(moves, i, j, attackerColor);
                 }
                 else if(piece == "wB" || piece == "bB"){
+                    moves.clear();
                     BishopMoves(moves, i, j, attackerColor);
                 }
                 else if(piece == "wN" || piece == "bN"){
+                    moves.clear();
                     KnightMoves(moves, i, j, attackerColor);
                 }
                 else if(piece == "wQ" || piece == "bQ"){
+                    moves.clear();
                     RookMoves(moves, i, j, attackerColor);
                     BishopMoves(moves, i, j, attackerColor);
                 }
                 else if(piece == "wK" || piece == "bK"){
+                    moves.clear();
                     KingMoves(moves, i, j, attackerColor);
+                }
+
+                for(auto &p : moves){
+                    if(row == p.first &&
+                       col == p.second){
+                        return true;
+                    }
                 }
             }
         }
     }
-    for(auto&p : moves){
-        if((row == p.first) && (col== p.second)){
-            return true;
-        }
-    }
+
     return false;
 }
 
@@ -269,6 +277,48 @@ bool isKinginCheck(char color){
     return isSquareAttacked(k.first, k.second, enemy);
 }
 
+bool anyValidMoves(char color){
+    for(int i = 0 ; i < 8 ; i++){
+        for(int j = 0 ; j < 8 ; j++){
+
+            if(board[i][j] != "" && board[i][j][0] == color){
+
+                vector<pair<int,int>> moves = getValidMoves(i,j);
+
+                for(auto &[r,c] : moves){
+
+                    string movedPiece = board[i][j];
+                    string capturedPiece = board[r][c];
+
+                    // make move
+                    board[r][c] = movedPiece;
+                    board[i][j] = "";
+
+                    // check legality
+                    bool illegal = isKinginCheck(color);
+
+                    // undo move
+                    board[i][j] = movedPiece;
+                    board[r][c] = capturedPiece;
+
+                    // if king safe -> at least one legal move exists
+                    if(!illegal){
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+    return false;
+}
+
+bool isCheckmate(char color){
+    return isKinginCheck(color) && !anyValidMoves(color);
+}
+
+bool isStalemate(char color){
+    return !isKinginCheck(color) && !anyValidMoves(color);
+}
 int main(){
     RenderWindow window(VideoMode({800, 800}), "Chess Engine");//window created 
     map<string, Texture> textures;
@@ -285,10 +335,12 @@ int main(){
     int selectedRow = -1, selectedCol = -1;
     vector<pair<int,int>> validMoves;
     char currentTurn = 'w';
+    bool gameOver = false;
+    string gameResult = "";
 
     Font font;
     if(!font.openFromFile("C:\\Chess Engine\\src\\arial.ttf")){
-    //could not load
+        //so that it does not show a warning 
     };
 
     // promotion variables
@@ -305,7 +357,7 @@ int main(){
             if(event->is<Event::Closed>()){
                 window.close();
             }
-            else if(event->is<Event::MouseButtonPressed>()){
+            else if(event->is<Event::MouseButtonPressed>() && !gameOver){
                 auto mouse = Mouse::getPosition(window);
                 int col = mouse.x / TILE_SIZE;
                 int row = mouse.y / TILE_SIZE;
@@ -354,6 +406,19 @@ int main(){
                         }
                         else{
                             currentTurn = (currentTurn == 'w') ? 'b' : 'w';
+                            if(isCheckmate(currentTurn)){
+                                gameOver = true;
+                                gameResult =(currentTurn == 'w')
+                                    ? "Checkmate! Black Wins!"
+                                    : "Checkmate! White Wins!";
+                            }
+
+                            // stalemate
+                            else if(isStalemate(currentTurn)){
+                                gameOver = true;
+                                gameResult = "Stalemate!";
+                            } // draw
+
                             // check for pawn promotion
                             if(board[row][col] == "wP" && row == 0){
                                 promoting = true;
@@ -456,6 +521,34 @@ int main(){
                     window.draw(sprite);
                 }
             }
+        }
+        if(gameOver){
+
+            RectangleShape overlay(Vector2f(800, 80));
+
+            overlay.setPosition(Vector2f(0, 360));
+
+            overlay.setFillColor(Color(0,0,0,220));
+
+            window.draw(overlay);
+
+            Text endText(font);
+
+            endText.setString(gameResult);
+
+            endText.setCharacterSize(40);
+
+            endText.setFillColor(Color::Yellow);
+
+            endText.setStyle(Text::Bold);
+
+            auto bounds = endText.getLocalBounds();
+
+            endText.setOrigin(bounds.size / 2.f);
+
+            endText.setPosition(Vector2f(400,400));
+
+            window.draw(endText);
         }
         window.display();
     }
