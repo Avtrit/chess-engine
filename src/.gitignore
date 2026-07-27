@@ -1,0 +1,18 @@
+# Compiled files
+*.exe
+*.o
+*.a
+*.out
+
+# Build folders
+build/
+bin/
+
+# VS Code settings (optional, you can remove this if you want to share your settings)
+.vscode/
+
+# CMake files
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
